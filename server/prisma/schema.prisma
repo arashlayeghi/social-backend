@@ -1,0 +1,113 @@
+datasource postgres {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  createdAt  DateTime @default(now())
+  first_name String?
+  id         String   @id @default(cuid())
+  last_name  String?
+  password   String
+  roles      String[]
+  updatedAt  DateTime @updatedAt
+  username   String   @unique
+}
+
+model Traveller {
+  comments     Comment[]
+  _ca Int?
+  email        String?
+  first_name   String?
+  groupMembers GroupMember[]
+  id           String        @id @default(cuid())
+  last_name    String?
+  likes        Like[]
+  middle_name  String?
+  posts        Post[]
+  title        String?
+  trips        Trip[]
+  _lma Int
+}
+
+model Trip {
+  cid    Traveller? @relation(fields: [cidId], references: [id])
+  cidId  String?
+  _ca Int?
+  groups Group[]
+  id     String     @id @default(cuid())
+  status String?
+  _lma DateTime? @updatedAt
+  userIp String?
+}
+
+model Comment {
+  cid     Traveller? @relation(fields: [cidId], references: [id])
+  cidId   String?
+  content String?
+  _ca Int?
+  id      String     @id @default(cuid())
+  _lma Int?
+}
+
+model Post {
+  cid     Traveller? @relation(fields: [cidId], references: [id])
+  cidId   String?
+  content String?
+  _ca Int?
+  id      String     @id @default(cuid())
+  likes   Like[]
+  medias  Media[]
+  _lma Int?
+}
+
+model Like {
+  cid       Traveller? @relation(fields: [cidId], references: [id])
+  cidId     String?
+  _ca Int?
+  id        String     @id @default(cuid())
+  post_id   Post?      @relation(fields: [post_idId], references: [id])
+  post_idId String?
+  _lma Int?
+}
+
+model Media {
+  _ca Int
+  id        String         @id @default(cuid())
+  post      Post?          @relation(fields: [postId], references: [id])
+  postId    String?
+  public_id String?
+  type      EnumMediaType?
+  _lma DateTime? @updatedAt
+}
+
+model Group {
+  _ca Int
+  description  String?
+  end_date     Int?
+  groupMembers GroupMember[]
+  id           String        @id @default(cuid())
+  start_date   Int?
+  tid          Trip?         @relation(fields: [tidId], references: [id])
+  tidId        String?
+  _lma Int?
+}
+
+model GroupMember {
+  cid        Traveller? @relation(fields: [cidId], references: [id])
+  cidId      String?
+  _ca Int
+  group_id   Group?     @relation(fields: [group_idId], references: [id])
+  group_idId String?
+  id         String     @id @default(cuid())
+  _lma DateTime? @updatedAt
+}
+
+enum EnumMediaType {
+  Image
+  Video
+}
